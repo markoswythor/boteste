@@ -419,9 +419,9 @@ async function starts() {
 				case 'girl':
 					itensgirl = ['bealtiful girl', 'sexy girl', 'thumblr girl', 'style girl']
 					girl = itens[Math.floor(Math.random() * itens.length)]
-					let url = "https://api.fdci.se/rep.php?gambar=" + girl
+					let urlgirl = "https://api.fdci.se/rep.php?gambar=" + girl
 
-					axios.get(url).then((resultado) => {
+					axios.get(urlgirl).then((resultado) => {
 						a = JSON.parse(JSON.stringify(resultado.data))
 						girls = a[Math.floor(Math.random() * a.length)]
 						imageToBase64(girls).then((resul) => {
@@ -433,9 +433,9 @@ async function starts() {
 				case 'boy':
 					itensboy = ['bealtiful boy', 'sexy boy', 'thumblr boy', 'style boy']
 					boy = itens[Math.floor(Math.random() * itens.length)]
-					let url = "https://api.fdci.se/rep.php?gambar=" + girl
+					let urlboy = "https://api.fdci.se/rep.php?gambar=" + girl
 	
-					axios.get(url).then((resultado) => {
+					axios.get(urlboy).then((resultado) => {
 						a = JSON.parse(JSON.stringify(resultado.data))
 						boys = a[Math.floor(Math.random() * a.length)]
 						imageToBase64(girls).then((resul) => {
