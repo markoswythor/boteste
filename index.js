@@ -25,6 +25,8 @@ const welkom = JSON.parse(fs.readFileSync('./src/welkom.json'))
 const nsfw = JSON.parse(fs.readFileSync('./src/nsfw.json'))
 const samih = JSON.parse(fs.readFileSync('./src/simi.json'))
 const imageToBase64 = require("image-to-base64")
+const { search } = require('@kagchi/kag-api/endpoints/anime')
+const { get } = require('request')
 prefix = '!'
 blocked = []
 
@@ -289,20 +291,17 @@ async function starts() {
       				});
 					break
 				case 'hentai':
-					const moment = require("moment");
-					tempo = moment().format("HH")
 					
-					if (tempo == "00"){
-						axios.get("https://tobz-api.herokuapp.com/api/hentai").then((res) => {
-							imageToBase64(res.data.result)
-							.then((ress) => {
-								buf = Buffer.from(ress, 'base64')
-								client.sendMessage(from, buf, image, {quoted: mek, caption: "*_Imagem enviada com sucesso!_*"})
-							})
+					if(isGroup) return reply("Esse comando só funciona no privado")
+				
+					axios.get("https://tobz-api.herokuapp.com/api/hentai").then((res) => {
+						imageToBase64(res.data.result)
+						.then((ress) => {
+							buf = Buffer.from(ress, 'base64')
+							client.sendMessage(from, buf, image, {quoted: mek, caption: "*_Imagem enviada com sucesso!_*"})
 						})
-					}else{
-						reply("Esse comando só funciona entre 00:00h à 00:59h")
-					}
+					})
+					
 					break
 				case 'tiktokstalk':
 					try {
@@ -416,9 +415,18 @@ async function starts() {
 					textsay = body.slice(5)
 					reply(textsay)
 					break
+				case 'play':
+					let searchyt = body.slice(6)
+					const spawn = require("child_process").spawn;
+					const processos = spawn("python", ["./music.py", searchyt]);
+					processos.stdout.on("data", async data => {
+						reply(data.toString());
+						
+					})
+					break
 				case 'girl':
-					itensgirl = ['bealtiful girl', 'sexy girl', 'thumblr girl', 'style girl']
-					girl = itens[Math.floor(Math.random() * itens.length)]
+					let itensgirl = ['bealtiful girl', 'sexy girl', 'thumblr girl', 'style girl']
+					let girl = itensgirl[Math.floor(Math.random() * itensgirl.length)]
 					let urlgirl = "https://api.fdci.se/rep.php?gambar=" + girl
 
 					axios.get(urlgirl).then((resultado) => {
@@ -431,9 +439,9 @@ async function starts() {
 					})
 					break
 				case 'boy':
-					itensboy = ['bealtiful boy', 'sexy boy', 'thumblr boy', 'style boy']
-					boy = itens[Math.floor(Math.random() * itens.length)]
-					let urlboy = "https://api.fdci.se/rep.php?gambar=" + girl
+					let itensboy = ['bealtiful boy', 'sexy boy', 'thumblr boy', 'style boy']
+					let boy = itensboy[Math.floor(Math.random() * itensboy.length)]
+					let urlboy = "https://api.fdci.se/rep.php?gambar=" + boy
 	
 					axios.get(urlboy).then((resultado) => {
 						a = JSON.parse(JSON.stringify(resultado.data))
