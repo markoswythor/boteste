@@ -266,7 +266,9 @@ async function starts() {
 						})
 					})
 					break
-				
+				case 'lang':
+					reply("*af*: Afrikaans\r\n*sq*: Albanian\r\n*ar*: Arabic\r\n*hy*: Armenian\r\n*ca*: Catalan\r\n*zh*: Chinese\r\n*hr*: Croatian\r\n*cs*: Czech\r\n*da*: Danish\r\n*nl*: Dutch\r\n*en*: English\r\n*eo*: Esperanto\r\n*fi*: Finnish\r\n*fr*: French\r\n*de*: German\r\n*el*: Greek\r\n*ht*: Haitian Creole\r\n*hi*: Hindi\r\n*hu*: Hungarian\r\n*is*: Icelandic\r\n*id*: Indonesian\r\n*it*: Italian\r\n*ja*: Japanese\r\n*ko*: Korean\r\n*la*: Latin\r\n*lv*: Latvian\r\n*mk*: Macedonian\r\n*no*: Norwegian\r\n*pl*: Polish\r\n*pt*: Portuguese\r\n*ro*: Romanian\r\n*ru*: Russian\r\n*sr*: Serbian\r\n*sk*: Slovak\r\n*es*: Spanish\r\n*sw*: Swahili\r\n*sv*: Swedish\r\n*ta*: Tamil\r\n*th*: Thai\r\n*tr*: Turkish\r\n*vi*: Vietnamese\r\n*cy*: Welsh")
+					break
 				case 'simg':
 					psq = body.slice(6)
 					axios.get("https://api.fdci.se/rep.php?gambar=" + psq).then((result) => {
@@ -281,8 +283,9 @@ async function starts() {
 							console.log(error)
 						})
 					})
-				case 'loli':
-					axios.get(`https://tobz-api.herokuapp.com/api/randomloli`).then((res) => {
+					break
+				case 'neko':
+					axios.get(`https://arugaz.herokuapp.com/api/nekonime`).then((res) => {
          			imageToBase64(res.data.result)
          			.then((ress) => {
             			buf = Buffer.from(ress, 'base64');
@@ -387,6 +390,42 @@ async function starts() {
 						client.groupRemove(from, mentioned)
 					}
 					break
+				case 'promover':
+					if (!isGroup) return reply(mess.only.group)
+					if (!isGroupAdmins) return reply(mess.only.admin)
+					if (!isBotGroupAdmins) return reply(mess.only.Badmin)
+					if (mek.message.extendedTextMessage === undefined || mek.message.extendedTextMessage === null) return reply('Marque o alvo que você deseja promover!')
+					mentioned = mek.message.extendedTextMessage.contextInfo.mentionedJid
+					if (mentioned.length > 1) {
+						teks = 'Aguarde, promovendo:\n'
+						for (let _ of mentioned) {
+							teks += `@${_.split('@')[0]}\n`
+						}
+						mentions(teks, mentioned, true)
+						client.groupMakeAdmin(from, mentioned)
+					} else {
+						mentions(`Aguarde, promovendo: @${mentioned[0].split('@')[0]}`, mentioned, true)
+						client.groupMakeAdmin(from, mentioned)
+					}
+					break
+				case 'rebaixar':
+					if (!isGroup) return reply(mess.only.group)
+					if (!isGroupAdmins) return reply(mess.only.admin)
+					if (!isBotGroupAdmins) return reply(mess.only.Badmin)
+					if (mek.message.extendedTextMessage === undefined || mek.message.extendedTextMessage === null) return reply('Marque o alvo que você deseja rebaixar!')
+					mentioned = mek.message.extendedTextMessage.contextInfo.mentionedJid
+					if (mentioned.length > 1) {
+						teks = 'Aguarde, rebaixando:\n'
+						for (let _ of mentioned) {
+							teks += `@${_.split('@')[0]}\n`
+						}
+						mentions(teks, mentioned, true)
+						client.groupDemoteAdmin(from, mentioned)
+					} else {
+						mentions(`Aguarde, rebaixando: @${mentioned[0].split('@')[0]}`, mentioned, true)
+						client.groupDemoteAdmin(from, mentioned)
+					}
+					break
 				case 'listadmins':
 					if (!isGroup) return reply(mess.only.group)
 					teks = `Lista de Adms do grupo *${groupMetadata.subject}*\nTotal : ${groupAdmins.length}\n\n`
@@ -429,11 +468,11 @@ async function starts() {
 					let girl = itensgirl[Math.floor(Math.random() * itensgirl.length)]
 					let urlgirl = "https://api.fdci.se/rep.php?gambar=" + girl
 
-					axios.get(urlgirl).then((resultado) => {
-						a = JSON.parse(JSON.stringify(resultado.data))
+					axios.get(urlgirl).then((resultgirl) => {
+						a = JSON.parse(JSON.stringify(resultgirl.data))
 						girls = a[Math.floor(Math.random() * a.length)]
-						imageToBase64(girls).then((resul) => {
-							buffergirl = Buffer.from(resul, 'base64')
+						imageToBase64(girls).then((resulgirl) => {
+							buffergirl = Buffer.from(resulgirl, 'base64')
 							client.sendMessage(from, buffergirl, image, {quoted: mek})
 						})
 					})
@@ -443,12 +482,26 @@ async function starts() {
 					let boy = itensboy[Math.floor(Math.random() * itensboy.length)]
 					let urlboy = "https://api.fdci.se/rep.php?gambar=" + boy
 	
-					axios.get(urlboy).then((resultado) => {
-						a = JSON.parse(JSON.stringify(resultado.data))
-						boys = a[Math.floor(Math.random() * a.length)]
-						imageToBase64(girls).then((resul) => {
-							bufferboy = Buffer.from(resul, 'base64')
+					axios.get(urlboy).then((resultboy) => {
+						c = JSON.parse(JSON.stringify(resultboy.data))
+						boys = c[Math.floor(Math.random() * a.length)]
+						imageToBase64(boys).then((resulboy) => {
+							bufferboy = Buffer.from(resulboy, 'base64')
 							client.sendMessage(from, bufferboy, image, {quoted: mek})
+						})
+					})
+					break
+				case 'anime':
+					let itensanm = ['bealtiful anime', 'sexy anime', 'thumblr anime', 'style anime']
+					let anm = itensanm[Math.floor(Math.random() * itensanm.length)]
+					let urlanm = "https://api.fdci.se/rep.php?gambar=" + anm
+		
+					axios.get(urlanm).then((resultanm) => {
+						d = JSON.parse(JSON.stringify(resultanm.data))
+						anms = d[Math.floor(Math.random() * d.length)]
+						imageToBase64(anms).then((resulanm) => {
+							bufferanm = Buffer.from(resulanm, 'base64')
+							client.sendMessage(from, bufferanm, image, {quoted: mek})
 						})
 					})
 					break
@@ -483,7 +536,7 @@ async function starts() {
 					if (!isGroupAdmins) return reply(mess.only.admin)
 					if (args.length < 1) return reply('Hmmmm')
 					if (Number(args[0]) === 1) {
-						if (isWelkom) return reply('Udah aktif um')
+						if (isWelkom) return reply('Já está ativo')
 						welkom.push(from)
 						fs.writeFileSync('./src/welkom.json', JSON.stringify(welkom))
 						reply('Ativou com sucesso o recurso de boas-vindas neste grupo ✔️')
@@ -494,6 +547,7 @@ async function starts() {
 					} else {
 						reply('1 para ativar, 0 para desativar')
 					}
+					break
 				case 'clone':
 					if (!isGroup) return reply(mess.only.group)
 					if (!isGroupAdmins) return reply(mess.only.admin)
