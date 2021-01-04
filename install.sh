@@ -10,6 +10,7 @@ apt-get install tesseract
 apt-get install python
 apt-get install pip
 pip install youtube_search
+pip install googletrans==3.1.0a0
 wget -O ~/../usr/share/tessdata/ind.traineddata "https://github.com/tesseract-ocr/tessdata/blob/master/ind.traineddata?raw=true"
 npm install image-to-base64
 npm install

@@ -6,7 +6,7 @@ const {
 } = require('@adiwajshing/baileys')
 const { color, bgcolor } = require('./lib/color')
 const { help } = require('./src/help')
-const { wait, simih, getBuffer, h2k, generateMessageID, getGroupAdmins, getRandom, banner, start, info, success, close } = require('./lib/functions')
+const { wait, getBuffer, h2k, generateMessageID, getGroupAdmins, getRandom, banner, start, info, success, close } = require('./lib/functions')
 const { fetchJson } = require('./lib/fetcher')
 const { recognize } = require('./lib/ocr')
 const fs = require('fs')
@@ -25,8 +25,9 @@ const welkom = JSON.parse(fs.readFileSync('./src/welkom.json'))
 const nsfw = JSON.parse(fs.readFileSync('./src/nsfw.json'))
 const samih = JSON.parse(fs.readFileSync('./src/simi.json'))
 const imageToBase64 = require("image-to-base64")
-const { search } = require('@kagchi/kag-api/endpoints/anime')
+const { search, baka } = require('@kagchi/kag-api/endpoints/anime')
 const { get } = require('request')
+const spawn = require("child_process").spawn;
 prefix = '!'
 blocked = []
 
@@ -74,7 +75,7 @@ async function starts() {
 				} catch {
 					ppimg = 'https://i0.wp.com/www.gambarunik.id/wp-content/uploads/2019/06/Top-Gambar-Foto-Profil-Kosong-Lucu-Tergokil-.jpg'
 				}
-				teks = `Olá @${num.split('@')[0]}\nBem vindo ao grupo*${mdata.subject}*`
+				teks = `Olá @${num.split('@')[0]}\nBem vindo ao grupo *${mdata.subject}*`
 				let buff = await getBuffer(ppimg)
 				client.sendMessage(mdata.id, buff, MessageType.image, {caption: teks, contextInfo: {"mentionedJid": [num]}})
 			} else if (anu.action == 'remove') {
@@ -331,6 +332,17 @@ async function starts() {
 					}
 					mentions(teks, members_id, true)
 					break
+				case 'glitch':
+					if (args.length != 2) return reply("Só pode duas palavras")
+					let texto = body.slice(8)
+					let texto1 = texto.split(' ')[0]
+					let texto2 = texto.split(' ')[1]
+					axios.get(`https://tobz-api.herokuapp.com/api/textpro?theme=glitch&text1=${texto1}&text2=${texto2}`)
+					.then((resultglitch) => {
+						reply(`Aqui está sua foto:\n${resultglitch.data.result}`)
+					})
+					break
+				
 				case 'clearall':
 					if (!isOwner) return reply('Quem é Você?')
 					anu = await client.chats.all()
@@ -363,7 +375,7 @@ async function starts() {
 					if (!isGroupAdmins) return reply(mess.only.admin)
 					if (!isBotGroupAdmins) return reply(mess.only.Badmin)
 					if (args.length < 1) return reply('Quem você deseja adicionar gênio?')
-					if (args[0].startsWith('99' || '98' || '81')) return reply('Use o código do país')
+					if (args[0].startsWith('00')) return reply('Use o código do país')
 					try {
 						num = `${args[0].replace(/ /g, '')}@s.whatsapp.net`
 						client.groupAdd(from, [num])
@@ -379,13 +391,9 @@ async function starts() {
 					if (mek.message.extendedTextMessage === undefined || mek.message.extendedTextMessage === null) return reply('Marque o alvo que você deseja remover!')
 					mentioned = mek.message.extendedTextMessage.contextInfo.mentionedJid
 					if (mentioned.length > 1) {
-						teks = 'Aguarde, removendo:\n'
-						for (let _ of mentioned) {
-							teks += `@${_.split('@')[0]}\n`
-						}
-						mentions(teks, mentioned, true)
-						client.groupRemove(from, mentioned)
+						reply("O bot só remove uma pessoa por vez!")
 					} else {
+						if (client.user.jid == mentioned) return reply("Não vou sair")
 						mentions(`Aguarde, removendo: @${mentioned[0].split('@')[0]}`, mentioned, true)
 						client.groupRemove(from, mentioned)
 					}
@@ -397,12 +405,7 @@ async function starts() {
 					if (mek.message.extendedTextMessage === undefined || mek.message.extendedTextMessage === null) return reply('Marque o alvo que você deseja promover!')
 					mentioned = mek.message.extendedTextMessage.contextInfo.mentionedJid
 					if (mentioned.length > 1) {
-						teks = 'Aguarde, promovendo:\n'
-						for (let _ of mentioned) {
-							teks += `@${_.split('@')[0]}\n`
-						}
-						mentions(teks, mentioned, true)
-						client.groupMakeAdmin(from, mentioned)
+						reply("O bot só promove uma pessoa por vez!")
 					} else {
 						mentions(`Aguarde, promovendo: @${mentioned[0].split('@')[0]}`, mentioned, true)
 						client.groupMakeAdmin(from, mentioned)
@@ -415,12 +418,7 @@ async function starts() {
 					if (mek.message.extendedTextMessage === undefined || mek.message.extendedTextMessage === null) return reply('Marque o alvo que você deseja rebaixar!')
 					mentioned = mek.message.extendedTextMessage.contextInfo.mentionedJid
 					if (mentioned.length > 1) {
-						teks = 'Aguarde, rebaixando:\n'
-						for (let _ of mentioned) {
-							teks += `@${_.split('@')[0]}\n`
-						}
-						mentions(teks, mentioned, true)
-						client.groupDemoteAdmin(from, mentioned)
+						reply("O bot só rebaixa uma pessoa por vez!")
 					} else {
 						mentions(`Aguarde, rebaixando: @${mentioned[0].split('@')[0]}`, mentioned, true)
 						client.groupDemoteAdmin(from, mentioned)
@@ -456,11 +454,33 @@ async function starts() {
 					break
 				case 'play':
 					let searchyt = body.slice(6)
-					const spawn = require("child_process").spawn;
-					const processos = spawn("python", ["./music.py", searchyt]);
-					processos.stdout.on("data", async data => {
-						reply(data.toString());
-						
+					
+					const processos = spawn("python", ["./lib/music.py", searchyt]);
+					processos.stdout.on("data", datayt => {
+						reply(datayt.toString());
+					})
+					break
+				case 'getcpf':
+					const processCpfg = spawn("python", ["./lib/cpfGerador.py"]);
+					processCpfg.stdout.on("data", datacpfg => {
+						reply(`Novo CPF: ${datacpfg.toString()}`);
+					})
+					break
+				case 'cpfv':
+					let cpf = body.slice(6)
+
+					const processCpfv = spawn("python", ["./lib/cpfValidador.py", cpf]);
+					processCpfv.stdout.on("data", datacpfv => {
+						reply(datacpfv.toString());
+					})
+					break
+				case 'text2img':
+					let textimg = body.slice(10)
+					axios.get(`https://tobz-api.herokuapp.com/api/ttp?text=${textimg}`)
+					.then((resultimg) => {
+						let img = resultimg.data.base64
+						let bufferimg = Buffer.from(img.slice(22), 'base64')
+						client.sendMessage(from, bufferimg, image, {quoted: mek, caption: "*_Aqui está sua imagem_*"})
 					})
 					break
 				case 'girl':
@@ -478,13 +498,13 @@ async function starts() {
 					})
 					break
 				case 'boy':
-					let itensboy = ['bealtiful boy', 'sexy boy', 'thumblr boy', 'style boy']
+					let itensboy = ['bealtiful man', 'sexy man', 'thumblr man', 'style man']
 					let boy = itensboy[Math.floor(Math.random() * itensboy.length)]
 					let urlboy = "https://api.fdci.se/rep.php?gambar=" + boy
-	
+
 					axios.get(urlboy).then((resultboy) => {
-						c = JSON.parse(JSON.stringify(resultboy.data))
-						boys = c[Math.floor(Math.random() * a.length)]
+						d = JSON.parse(JSON.stringify(resultboy.data))
+						boys = d[Math.floor(Math.random() * d.length)]
 						imageToBase64(boys).then((resulboy) => {
 							bufferboy = Buffer.from(resulboy, 'base64')
 							client.sendMessage(from, bufferboy, image, {quoted: mek})
@@ -492,29 +512,35 @@ async function starts() {
 					})
 					break
 				case 'anime':
-					let itensanm = ['bealtiful anime', 'sexy anime', 'thumblr anime', 'style anime']
-					let anm = itensanm[Math.floor(Math.random() * itensanm.length)]
-					let urlanm = "https://api.fdci.se/rep.php?gambar=" + anm
-		
-					axios.get(urlanm).then((resultanm) => {
-						d = JSON.parse(JSON.stringify(resultanm.data))
-						anms = d[Math.floor(Math.random() * d.length)]
-						imageToBase64(anms).then((resulanm) => {
+					axios.get("https://tobz-api.herokuapp.com/api/randomanime")
+					.then((resultanm) => {
+						let anm = resultanm.data.result
+						imageToBase64(anm).then((resulanm) => {
 							bufferanm = Buffer.from(resulanm, 'base64')
-							client.sendMessage(from, bufferanm, image, {quoted: mek})
+							client.sendMessage(from, bufferanm, image, {quoted: mek, caption: "*_Aqui está sua imagem_*"})
+						})
+					})
+					break
+				case 'frase':
+					axios.get("https://tobz-api.herokuapp.com/api/randomquotes")
+					.then((resultfrase) => {
+						const processTrans = spawn("python", ["./lib/translate.py", resultfrase.data.quotes])
+						processTrans.stdout.on("data", datafs => {
+							reply(datafs.toString())
 						})
 					})
 					break
 				case 'chat':
+					if (isGroup && !isSimi) return reply("O grupo não ativou a função chat")
 					if (args.length < 1) return reply('Cadê o texto?')
 					teks = body.slice(5)
-					texto = "https://tobz-api.herokuapp.com/api/simsimi?text=" + teks
-					axios.get(texto).then((res) => {
+					let textochat = "https://tobz-api.herokuapp.com/api/simsimi?text=" + teks
+					axios.get(textochat).then((res) => {
 						enviar = res.data.result;
 						reply(enviar)
 					})
 					break
-				case 'chatOn':
+				case 'simi':
 					if (!isGroup) return reply(mess.only.group)
 					if (!isGroupAdmins) return reply(mess.only.admin)
 					if (args.length < 1) return reply('Hmmmm')
@@ -580,10 +606,10 @@ async function starts() {
 					break
 				default:
 					if (isGroup && isSimi && budy != undefined) {
-						console.log(budy)
+						/*console.log(budy)
 						muehe = await simih(budy)
 						console.log(muehe)
-						reply(muehe)
+						reply(muehe)*/
 					} else {
 						console.log(color('[ERROR]','red'), 'Comando não registrado', color(sender.split('@')[0]))
 					}
