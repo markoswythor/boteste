@@ -6,7 +6,7 @@ const {
 } = require('@adiwajshing/baileys')
 const { color, bgcolor } = require('./lib/color')
 const { help } = require('./src/help')
-const { wait, getBuffer, h2k, generateMessageID, getGroupAdmins, getRandom, banner, start, info, success, close } = require('./lib/functions')
+const { wait, getBuffer, h2k, generateMessageID, getGroupAdmins, getRandom, banner, start, info, success, close, getProxy } = require('./lib/functions')
 const { fetchJson } = require('./lib/fetcher')
 const { recognize } = require('./lib/ocr')
 const fs = require('fs')
@@ -22,12 +22,14 @@ const lolis = require('lolis.life')
 const { default: axios } = require('axios')
 const loli = new lolis()
 const welkom = JSON.parse(fs.readFileSync('./src/welkom.json'))
-const nsfw = JSON.parse(fs.readFileSync('./src/nsfw.json'))
+const donate = JSON.parse(fs.readFileSync('./src/donate.json'))
 const samih = JSON.parse(fs.readFileSync('./src/simi.json'))
 const imageToBase64 = require("image-to-base64")
 const { search, baka } = require('@kagchi/kag-api/endpoints/anime')
 const { get } = require('request')
 const spawn = require("child_process").spawn;
+const ytdl = require("ytdl-core");
+const { format } = require('path')
 prefix = '!'
 blocked = []
 
@@ -147,8 +149,8 @@ async function starts() {
 			const isBotGroupAdmins = groupAdmins.includes(botNumber) || false
 			const isGroupAdmins = groupAdmins.includes(sender) || false
 			const isWelkom = isGroup ? welkom.includes(from) : false
-			const isNsfw = isGroup ? nsfw.includes(from) : false
 			const isSimi = isGroup ? samih.includes(from) : false
+			const isDonateUser = donate.includes(from) || false
 			const isOwner = ownerNumber.includes(sender)
 			const isUrl = (url) => {
 			    return url.match(new RegExp(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&/=]*)/, 'gi'))
@@ -244,6 +246,8 @@ async function starts() {
 							.addOutputOptions([`-vcodec`,`libwebp`,`-vf`,`scale='min(320,iw)':min'(320,ih)':force_original_aspect_ratio=decrease,fps=15, pad=320:320:-1:-1:color=white@0.0, split [a][b]; [a] palettegen=reserve_transparent=on:transparency_color=ffffff [p]; [b][p] paletteuse`])
 							.toFormat('webp')
 							.save(ran)
+					} else if((isMedia && mek.message.videoMessage.seconds > 11 || isQuotedVideo && mek.message.extendedTextMessage.contextInfo.quotedMessage.videoMessage.seconds > 11) && args.length == 0){
+						reply("Envie vídeos com uma duração de até no máximo 10 segundos")
 					} else {
 						reply(`Envie fotos com legendas ${prefix}sticker ou responda uma imagem que foi enviado`)
 					}
@@ -294,22 +298,29 @@ async function starts() {
          				});
       				});
 					break
+				case 'loli':
+					axios.get(`https://tobz-api.herokuapp.com/api/randomloli?apikey=BotWeA`).then((resloli) => {
+					 imageToBase64(resloli.data.result)
+					 .then((ressloli) => {
+						bufloli = Buffer.from(ressloli, 'base64');
+						client.sendMessage(from, bufloli, image, {quoted: mek, caption: "*_Imagem enviada com sucesso!_*"})
+						 });
+					  });
+					break
 				case 'hentai':
-					
 					if(isGroup) return reply("Esse comando só funciona no privado")
-				
-					axios.get("https://tobz-api.herokuapp.com/api/hentai").then((res) => {
-						imageToBase64(res.data.result)
-						.then((ress) => {
-							buf = Buffer.from(ress, 'base64')
-							client.sendMessage(from, buf, image, {quoted: mek, caption: "*_Imagem enviada com sucesso!_*"})
+					axios.get("https://tobz-api.herokuapp.com/api/hentai?apikey=BotWeA").then((reshentai) => {
+						imageToBase64(reshentai.data.result)
+						.then((resshentai) => {
+							bufhentai = Buffer.from(resshentai, 'base64')
+							client.sendMessage(from, bufhentai, image, {quoted: mek, caption: "*_Imagem enviada com sucesso!_*"})
 						})
 					})
 					
 					break
 				case 'tiktokstalk':
 					try {
-						if (args.length < 1) return client.sendMessage(from, 'Onde está o nome de usuário?', text, {quoted: mek})
+						if (args.length < 1) return reply("Onde está o nome de usuário?")
 						let { user, stats } = await tiktod.getUserProfileInfo(args[0])
 						reply(mess.wait)
 						teks = `*ID* : ${user.id}\n*Username* : ${user.uniqueId}\n*Nickname* : ${user.nickname}\n*Followers* : ${stats.followerCount}\n*Followings* : ${stats.followingCount}\n*Publicações* : ${stats.videoCount}\n*Corações* : ${stats.heart}\n`
@@ -337,12 +348,45 @@ async function starts() {
 					let texto = body.slice(8)
 					let texto1 = texto.split(' ')[0]
 					let texto2 = texto.split(' ')[1]
-					axios.get(`https://tobz-api.herokuapp.com/api/textpro?theme=glitch&text1=${texto1}&text2=${texto2}`)
+					axios.get(`https://tobz-api.herokuapp.com/api/textpro?theme=glitch&text1=${texto1}&text2=${texto2}&apikey=BotWeA`)
 					.then((resultglitch) => {
 						reply(`Aqui está sua foto:\n${resultglitch.data.result}`)
 					})
 					break
-				
+				case 'paper':
+					if (args.length < 1) return reply("Digite um texto")
+					let textopaper = body.slice(7)
+					axios.get(`https://tobz-api.herokuapp.com/api/photooxy?theme=love_paper&text=${textopaper}&apikey=BotWeA`)
+					.then((resultpaper) => {
+						imageToBase64(resultpaper.data.result)
+						.then((resultpaperbuf) => {
+							bufpaper = Buffer.from(resultpaperbuf, 'base64')
+							client.sendMessage(from, bufpaper, image, {quoted: mek, caption: '*_Aqui está sua imagem_*'})
+						})
+					})
+					break
+				case 'rnum':
+					if (args.length != 2) return reply("Digite dois números")
+					let num1 = body.split(" ")[1]
+					let num2 = body.split(" ")[2]
+					const processnum = spawn("python3", ["./lib/getnum.py", num1, num2]);
+					processnum.stdout.on("data", datanum => {
+						reply(datanum.toString().trim());
+					})
+
+					break
+				case 'burnpaper':
+					if (args.length < 1) return reply("Digite um texto")
+					let textoburn = body.slice(11)
+					axios.get(`https://tobz-api.herokuapp.com/api/photooxy?theme=burn_paper&text=${textoburn}&apikey=BotWeA`)
+					.then((resultburn) => {
+						imageToBase64(resultburn.data.result)
+						.then((resultburnbuf) => {
+							bufburn = Buffer.from(resultburnbuf, 'base64')
+							client.sendMessage(from, bufburn, image, {quoted: mek, caption: '*_Aqui está sua imagem_*'})
+						})
+					})
+					break
 				case 'clearall':
 					if (!isOwner) return reply('Quem é Você?')
 					anu = await client.chats.all()
@@ -454,29 +498,36 @@ async function starts() {
 					break
 				case 'play':
 					let searchyt = body.slice(6)
-					
-					const processos = spawn("python", ["./lib/music.py", searchyt]);
+					const processos = spawn("python3", ["./lib/music.py", searchyt]);
 					processos.stdout.on("data", datayt => {
-						reply(datayt.toString());
+						reply(datayt.toString().trim());
+					})
+					break
+				case 'trans':
+					let lang = body.split(" ")[1]
+					let trans = body.slice(9)
+					const processTranslate = spawn("python3", ["./lib/translate.py", trans, lang])
+					processTranslate.stdout.on("data", datatrans => {
+						reply(datatrans.toString().trim());
 					})
 					break
 				case 'getcpf':
-					const processCpfg = spawn("python", ["./lib/cpfGerador.py"]);
+					const processCpfg = spawn("python3", ["./lib/cpfGerador.py"]);
 					processCpfg.stdout.on("data", datacpfg => {
-						reply(`Novo CPF: ${datacpfg.toString()}`);
+						reply(`Novo CPF: ${datacpfg.toString().trim()}`);
 					})
 					break
 				case 'cpfv':
 					let cpf = body.slice(6)
 
-					const processCpfv = spawn("python", ["./lib/cpfValidador.py", cpf]);
+					const processCpfv = spawn("python3", ["./lib/cpfValidador.py", cpf]);
 					processCpfv.stdout.on("data", datacpfv => {
-						reply(datacpfv.toString());
+						reply(datacpfv.toString().trim());
 					})
 					break
 				case 'text2img':
 					let textimg = body.slice(10)
-					axios.get(`https://tobz-api.herokuapp.com/api/ttp?text=${textimg}`)
+					axios.get(`https://tobz-api.herokuapp.com/api/ttp?text=${textimg}&apikey=BotWeA`)
 					.then((resultimg) => {
 						let img = resultimg.data.base64
 						let bufferimg = Buffer.from(img.slice(22), 'base64')
@@ -512,7 +563,7 @@ async function starts() {
 					})
 					break
 				case 'anime':
-					axios.get("https://tobz-api.herokuapp.com/api/randomanime")
+					axios.get("https://tobz-api.herokuapp.com/api/randomanime?apikey=BotWeA")
 					.then((resultanm) => {
 						let anm = resultanm.data.result
 						imageToBase64(anm).then((resulanm) => {
@@ -522,11 +573,11 @@ async function starts() {
 					})
 					break
 				case 'frase':
-					axios.get("https://tobz-api.herokuapp.com/api/randomquotes")
+					axios.get("https://tobz-api.herokuapp.com/api/randomquotes?apikey=BotWeA")
 					.then((resultfrase) => {
-						const processTrans = spawn("python", ["./lib/translate.py", resultfrase.data.quotes])
+						const processTrans = spawn("python3", ["./lib/translate.py", resultfrase.data.quotes, "pt"])
 						processTrans.stdout.on("data", datafs => {
-							reply(datafs.toString())
+							reply(datafs.toString().trim())
 						})
 					})
 					break
@@ -534,7 +585,7 @@ async function starts() {
 					if (isGroup && !isSimi) return reply("O grupo não ativou a função chat")
 					if (args.length < 1) return reply('Cadê o texto?')
 					teks = body.slice(5)
-					let textochat = "https://tobz-api.herokuapp.com/api/simsimi?text=" + teks
+					let textochat = "https://tobz-api.herokuapp.com/api/simsimi?text=" + teks + "&apikey=BotWeA"
 					axios.get(textochat).then((res) => {
 						enviar = res.data.result;
 						reply(enviar)
@@ -603,6 +654,27 @@ async function starts() {
 					} else {
 						reply('Só preciso de uma foto mano')
 					}
+					break
+				case 'listdonate':
+					let listadon = JSON.parse(fs.readFileSync("./src/donateUser.json"));
+					let don = "";
+					let numdon = 0;
+					for(let fodinha of listadon){
+						numdon += 1;
+						don += `[${numdon.toString()}] *${fodinha}*\n`
+					}
+					reply(`Número de fodinhas: ${numdon}\n${don}`);
+					break
+				case 'comandofoda':
+					if(!isDonateUser) return reply("Esse comando é exclusivo aos que doaram!")
+					let buferrere = fs.readFileSync("./src/emror.jpg");
+					client.sendMessage(from, buferrere, image, {quoted: mek})
+					break
+				case 'donate':
+					reply("Você pode fazer uma doação para ajudar no projeto do bot!\r\n\r\nConta do dev:\r\nBanco: 260 - Nu Pagamentos S.A.\r\nAgencia: 0001\r\nConta: 51723176-6\r\n\r\nPix: (86) 98121-4258");
+					setTimeout(function(){
+						reply("Se você mandar o comprovante para o número da chave Pix, no caso o dev, ele irá adicionar seu número para usar um comando exclusivo do bot");
+					}, 1000);
 					break
 				default:
 					if (isGroup && isSimi && budy != undefined) {

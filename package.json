@@ -38,7 +38,8 @@
     "request": "^2.81.0",
     "simsimi": "^2.0.4",
     "spinnies": "^0.5.1",
-    "tiktok-scraper": "^1.4.7"
+    "tiktok-scraper": "^1.4.7",
+    "ytdl-core": "^4.4.3"
   },
   "devDependencies": {},
   "repository": {

@@ -44,9 +44,12 @@ _Use esse comando respondendo um sticker_\n
 
 ✅ *${prefix}lang*: Manda as linguagens disponiveis para o comando !tts\n
 
+✅ *${prefix}trans [lang] [texto]*: Traduz o texto informado para a língua informada\n
+
 💠 ɢʀᴜᴘᴏs 💠\n
 
-✅ *${prefix}tagall*: Menciona todos do grupo
+✅ *${prefix}tagall*: Menciona t
+odos do grupo
 _Comando apenas para adms_\n
 
 ✅ *${prefix}listadmins*: Menciona todos os adms do grupo
