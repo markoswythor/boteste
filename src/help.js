@@ -46,6 +46,12 @@ _Use esse comando respondendo um sticker_\n
 
 ✅ *${prefix}trans [lang] [texto]*: Traduz o texto informado para a língua informada\n
 
+✅ *${prefix}number*: Gera um número aleatório\n
+
+✅ *${prefix}paper [texto]*: Gera uma imagem de papel com o texto digitado\n
+
+✅ *${prefix}burnpaper [texto]*: Gera uma imagem de papel queimado com o texto digitado\n
+
 💠 ɢʀᴜᴘᴏs 💠\n
 
 ✅ *${prefix}tagall*: Menciona t
@@ -64,10 +70,10 @@ _Comando apenas para adms_\n
 ✅ *${prefix}kick [tag]*: Remove a pessoa marcada
 _Comando apenas para adms_\n
 
-✅ *${prefix}promover [tag]*: Promove a pessoa marcada a adm
+✅ *${prefix}up [tag]*: Promove a pessoa marcada a adm
 _Comando apenas para adms_\n
 
-✅ *${prefix}rebaixar [tag]*: Tira o adm da pessoa marcada
+✅ *${prefix}down [tag]*: Tira o adm da pessoa marcada
 _Comando apenas para adms_
 
 ✅ *${prefix}simi [0 ou 1]*: Ativa ou desativa o comando ${prefix}chat no grupo
